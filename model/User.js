@@ -1,6 +1,8 @@
 const sequelize = require('sequelize')
 const db = require('../utils/db')
 
+const CategoryUser = require('./CategoryUser')
+
 const User = db.define(
     "user",
     {
@@ -14,5 +16,11 @@ const User = db.define(
         freezeTableName: true
     }
 )
+
+CategoryUser.hasMany(User, { as: 'user' })
+User.belongsTo(CategoryUser, {
+    foreignKey: "category_user_id",
+    as: "category_user",
+})
 
 module.exports = User

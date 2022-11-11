@@ -3,6 +3,7 @@ const Post = require('../model/Post')
 
 const multer = require('multer')
 const fs = require('fs')
+const Category = require('../model/Category')
 
 
 const fileStorage = multer.diskStorage({
@@ -58,7 +59,9 @@ const addPost = (req, res) => {
 
 const getAllPost = async (req, res) => {
     try {
-        const getAllPost = await Post.findAll({})
+        const getAllPost = await Post.findAll({
+            include: ['category', 'user']
+        })
 
         res.json(getAllPost)
     } catch (err) {

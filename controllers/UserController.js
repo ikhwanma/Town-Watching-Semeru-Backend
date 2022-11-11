@@ -32,11 +32,13 @@ const getUser = async (req, res) => {
     const decode = jwt.verify(token, process.env.SECRET_KEY)
     const user_id = decode.id
 
-    const getUser = await User.findOne({
-        where: { id: user_id }
+    const getUserData = await User.findOne({
+        where: { id: user_id },
+        include: ['category_user'],
+        exclude: ['categoryUserId']
     })
 
-    res.json(getUser)
+    res.json(getUserData)
 }
 
 const register = (req, res) => {
@@ -59,7 +61,7 @@ const register = (req, res) => {
                 })
             }
 
-            const iconPath = "images\\user\\mountain_icon.png"
+            const iconPath = "images/user/mountain_icon.png"
 
             const newUser = new User({
                 name, email, password, image: iconPath

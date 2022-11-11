@@ -11,6 +11,21 @@ const getCategory = async (req, res) => {
     }
 }
 
+const getCategoryById = async (req, res) => {
+    try {
+
+        const id = req.params.id
+
+        const category = await Category.findOne({
+            where: { id: id }
+        })
+
+        res.json(category)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
 const addCategory = async (req, res) => {
     try {
 
@@ -29,5 +44,5 @@ const addCategory = async (req, res) => {
 }
 
 module.exports = {
-    getCategory, addCategory
+    getCategory, addCategory, getCategoryById
 }

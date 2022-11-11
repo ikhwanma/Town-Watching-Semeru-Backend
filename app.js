@@ -12,7 +12,7 @@ const app = express()
 
 db.authenticate().then(() => console.log("Auth berhasil"))
 
-app.use("/semeru/post/images", express.static('images'))
+app.use("/semeru/townwatch/images", express.static('images'))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))

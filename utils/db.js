@@ -1,6 +1,6 @@
 const sequelize = require('sequelize')
 
-const db = new sequelize("semerutownwatch(test)", "root", "", {
+const db = new sequelize("semerutownwatch", "root", "", {
     dialect: "mysql"
 })
 
