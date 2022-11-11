@@ -6,7 +6,6 @@ const CategoryUser = require('./CategoryUser')
 const User = db.define(
     "user",
     {
-        category_user_id: { type: sequelize.INTEGER },
         name: { type: sequelize.STRING },
         email: { type: sequelize.STRING },
         password: { type: sequelize.STRING },
@@ -19,7 +18,7 @@ const User = db.define(
 
 CategoryUser.hasMany(User, { as: 'user' })
 User.belongsTo(CategoryUser, {
-    foreignKey: "category_user_id",
+    foreignKey: "categoryUserId",
     as: "category_user",
 })
 

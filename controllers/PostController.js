@@ -5,6 +5,8 @@ const multer = require('multer')
 const fs = require('fs')
 const Category = require('../model/Category')
 
+const UserController = require('./UserController')
+
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -39,13 +41,13 @@ const addPost = (req, res) => {
 
             const token = req.headers.authorization
             const decode = jwt.verify(token, process.env.SECRET_KEY)
-            const user_id = decode.id
+            const userId = decode.id
 
-            const { description, latitude, longitude, category, level } = req.body
+            const { description, latitude, longitude, categoryId, level } = req.body
             const image = req.file.path
 
             const newPost = new Post({
-                description, latitude, longitude, category, level, user_id, image
+                description, latitude, longitude, level, image, categoryId: categoryId, userId: userId
             })
 
             await newPost.save()
@@ -60,7 +62,7 @@ const addPost = (req, res) => {
 const getAllPost = async (req, res) => {
     try {
         const getAllPost = await Post.findAll({
-            include: ['category', 'user']
+            include: ['category', 'user', 'like', 'comment']
         })
 
         res.json(getAllPost)
@@ -75,8 +77,9 @@ const getPostUser = async (req, res) => {
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const userId = decode.id
 
-        const getPost = await Post.findOne({
-            where: { user_id: userId }
+        const getPost = await Post.findAll({
+            where: { userId: userId },
+            include: ['category', 'user', 'like', 'comment']
         })
 
         res.json(getPost)
@@ -90,7 +93,8 @@ const getDetailPost = async (req, res) => {
         const id = req.params.id
 
         const getPost = await Post.findOne({
-            where: { id: id }
+            where: { id: id },
+            include: ['category', 'user', 'like', 'comment']
         })
 
         res.json(getPost)
