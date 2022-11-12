@@ -16,7 +16,7 @@ const addComment = async (req, res) => {
 
         await newComment.save()
 
-        res.json(newComment)
+        res.send("Komentar ditambahkan")
 
     } catch (err) {
         res.status(500).send(err.message)
@@ -27,14 +27,15 @@ const getComment = async (req, res) => {
     try {
         const postId = req.params.id
 
-        const getComment = await Comment.findAll({
-            where: { postId: postId }
+        const getCommentPost = await Comment.findAll({
+            where: { postId: postId },
+            attributes: ['id', 'comment', 'createdAt', 'updatedAt', 'postId'],
+            include: ['user']
         })
+        res.json(getCommentPost)
     } catch (err) {
         res.status(500).send(err.message)
     }
-
-    res.json(getComment)
 }
 
 module.exports = {
