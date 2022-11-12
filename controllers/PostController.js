@@ -62,6 +62,9 @@ const addPost = (req, res) => {
 const getAllPost = async (req, res) => {
     try {
         const getAllPost = await Post.findAll({
+            attributes: [
+                'id', 'description', 'latitude', 'longitude', 'level', 'image', 'createdAt', 'updatedAt'
+            ],
             include: ['category', 'user', 'like', 'comment']
         })
 
@@ -79,6 +82,9 @@ const getPostUser = async (req, res) => {
 
         const getPost = await Post.findAll({
             where: { userId: userId },
+            attributes: [
+                'id', 'description', 'latitude', 'longitude', 'level', 'image', 'createdAt', 'updatedAt'
+            ],
             include: ['category', 'user', 'like', 'comment']
         })
 
@@ -94,6 +100,9 @@ const getDetailPost = async (req, res) => {
 
         const getPost = await Post.findOne({
             where: { id: id },
+            attributes: [
+                'id', 'description', 'latitude', 'longitude', 'level', 'image', 'createdAt', 'updatedAt'
+            ],
             include: ['category', 'user', 'like', 'comment']
         })
 
@@ -137,10 +146,10 @@ const updatePost = async (req, res) => {
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const user_id = decode.id
 
-        const { id, description, category, level } = req.body
+        const { id, description, categoryId, level } = req.body
 
         const updateUser = await Post.update({
-            description: description, category: category, level
+            description: description, categoryId: categoryId, level
         }, { where: { id: id, user_id: user_id } })
 
         // res.json(updateUser)

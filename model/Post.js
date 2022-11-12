@@ -28,7 +28,7 @@ User.hasMany(Post, { as: 'post' })
 Post.belongsTo(User, {
     foreignKey: "userId",
     as: "user",
-    include: 'categoryUserId'
+    include: ['category_user']
 })
 
 module.exports = Post

@@ -34,8 +34,10 @@ const getUser = async (req, res) => {
 
     const getUserData = await User.findOne({
         where: { id: user_id },
-        include: ['category_user'],
-        exclude: ['categoryUserId']
+        attributes: [
+            'id', 'name', 'email', 'password', 'image', 'createdAt', 'updatedAt'
+        ],
+        include: ['category_user']
     })
 
     res.json(getUserData)
@@ -48,7 +50,7 @@ const register = (req, res) => {
         }
 
         try {
-            const { name, email } = req.body
+            const { name, email, category_user } = req.body
             const password = hashedPass
 
             const checkUser = await User.findOne({

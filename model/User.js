@@ -19,7 +19,7 @@ const User = db.define(
 CategoryUser.hasMany(User, { as: 'user' })
 User.belongsTo(CategoryUser, {
     foreignKey: "categoryUserId",
-    as: "category_user",
+    as: "category_user"
 })
 
 module.exports = User

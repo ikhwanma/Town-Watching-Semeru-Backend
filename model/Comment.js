@@ -7,7 +7,6 @@ const Post = require('./Post')
 const Comment = db.define(
     "comment",
     {
-        post_id: { type: sequelize.INTEGER },
         comment: { type: sequelize.STRING }
     },
     {

@@ -9,7 +9,6 @@ const PostRoute = require('./routes/post')
 const UserRoute = require('./routes/user')
 
 const app = express()
-
 db.authenticate().then(() => console.log("Auth berhasil"))
 
 app.use("/semeru/townwatch/images", express.static('images'))

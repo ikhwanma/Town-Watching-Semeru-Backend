@@ -7,8 +7,6 @@ const Post = require('./Post')
 const Like = db.define(
     "like",
     {
-        user_id: { type: sequelize.INTEGER },
-        post_id: { type: sequelize.INTEGER },
     },
     {
         freezeTableName: true
