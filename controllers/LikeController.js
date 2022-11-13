@@ -7,7 +7,7 @@ const addLike = async (req, res) => {
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const userId = decode.id
 
-        const postId = req.params.post_id
+        const postId = req.params.id
 
         const getLike = await Like.findOne({
             where: { userId: userId, postId: postId }
@@ -42,27 +42,19 @@ const getPostLike = async (req, res) => {
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const userId = decode.id
 
-        const postId = req.params.id
-
         const getPost = await Like.findAll({
-            where: { postId: postId, userId: userId },
+            where: { userId: userId },
+            attributes: ['id', 'createdAt', 'updatedAt', 'userId'],
             include: ['post']
         })
+
+        res.json(getPost)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
 
-const getLike = async (req, res) => {
-    try {
-        const getLike = await Like.findAll({})
-
-        res.json(getLike)
-    } catch (err) {
-        res.status(500).send(err.message)
-    }
-}
 
 module.exports = {
-    addLike, getLike, getPostLike
+    addLike, getPostLike
 }
