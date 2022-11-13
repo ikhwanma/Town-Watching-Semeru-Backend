@@ -35,6 +35,24 @@ const addLike = async (req, res) => {
     }
 }
 
+const getPostLike = async (req, res) => {
+    try {
+
+        const token = req.headers.authorization
+        const decode = jwt.verify(token, process.env.SECRET_KEY)
+        const userId = decode.id
+
+        const postId = req.params.id
+
+        const getPost = await Like.findAll({
+            where: { postId: postId, userId: userId },
+            include: ['post']
+        })
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
 const getLike = async (req, res) => {
     try {
         const getLike = await Like.findAll({})
@@ -46,5 +64,5 @@ const getLike = async (req, res) => {
 }
 
 module.exports = {
-    addLike, getLike
+    addLike, getLike, getPostLike
 }
