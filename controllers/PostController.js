@@ -4,7 +4,8 @@ const Post = require('../model/Post')
 const multer = require('multer')
 const fs = require('fs')
 const Category = require('../model/Category')
-
+const Like = require('../model/Like')
+const Comment = require('../model/Comment')
 const UserController = require('./UserController')
 
 
@@ -117,17 +118,23 @@ const deletePost = async (req, res) => {
         const token = req.headers.authorization
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const userId = decode.id
-        const id = req.body.id
+        const id = req.params.id
 
         const post = await Post.findOne({
             where: { id: id }
         })
 
         const deletePost = await Post.destroy({
-            where: { id: id, user_id: userId }
+            where: { id: id, userId: userId }
         })
 
-        await deletePost
+        await Like.destroy({
+            where: { postId: id }
+        })
+
+        await Comment.destroy({
+            where: { postId: id }
+        })
 
         const imagePath = post.image.split("\\")
 
