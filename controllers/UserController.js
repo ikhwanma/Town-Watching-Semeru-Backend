@@ -2,7 +2,7 @@ const User = require('../model/User')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
-const upload = require('../middleware/upload')
+const upload = require('../middleware/upload.user')
 
 const getUser = async (req, res) => {
     const token = req.headers.authorization
@@ -157,6 +157,36 @@ const updatePassword = async (req, res) => {
     }
 }
 
+const updateAva = (req, res) => {
+    upload(req, res, async (err) => {
+        try {
+            const token = req.headers.authorization
+            const decode = jwt.verify(token, process.env.SECRET_KEY)
+            const id = decode.id
+            const image = req.file.path
+            const iconPath = "images/user/mountain_icon.png"
+
+            const getUser = await User.findOne({
+                where: { id: id }
+            }).then(user => {
+                if (user.image !== iconPath) {
+                    const imagePath = user.image.split("/")
+
+                    fs.unlinkSync('images/user/' + imagePath[2])
+                }
+            })
+
+            await User.update({
+                image: image
+            }, { where: { id: id } })
+
+            res.send("Foto profil diupdate")
+        } catch (err) {
+            res.status(500).send(err.message)
+        }
+    })
+}
+
 module.exports = {
-    login, register, getUser, updateUser, updatePassword
+    login, register, getUser, updateUser, updatePassword, updateAva
 }

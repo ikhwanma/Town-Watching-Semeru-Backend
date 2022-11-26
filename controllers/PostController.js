@@ -4,7 +4,7 @@ const Post = require('../model/Post')
 const fs = require('fs')
 const Like = require('../model/Like')
 const Comment = require('../model/Comment')
-const upload = require('../middleware/upload')
+const upload = require('../middleware/upload.post')
 
 
 const addPost = (req, res) => {
@@ -113,7 +113,7 @@ const deletePost = async (req, res) => {
 
         const imagePath = post.image.split("\\")
 
-        fs.unlinkSync('images/post/' + imagePath[2])
+        fs.unlinkSync('images/' + imagePath[2])
 
         res.send("Data berhasil dihapus")
 
