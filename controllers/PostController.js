@@ -1,36 +1,11 @@
 const jwt = require('jsonwebtoken')
 const Post = require('../model/Post')
 
-const multer = require('multer')
 const fs = require('fs')
-const Category = require('../model/Category')
 const Like = require('../model/Like')
 const Comment = require('../model/Comment')
-const UserController = require('./UserController')
+const upload = require('../middleware/upload')
 
-
-const fileStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'images/post')
-    },
-    filename: (req, file, cb) => {
-        cb(null, new Date().getTime() + '-' + file.originalname)
-    }
-})
-
-const fileFilter = (req, file, cb) => {
-    if (
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/jpeg'
-    ) {
-        cb(null, true)
-    } else {
-        cb(null, false)
-    }
-}
-
-var upload = multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 
 const addPost = (req, res) => {
     upload(req, res, async (err) => {

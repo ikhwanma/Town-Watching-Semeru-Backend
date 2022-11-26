@@ -1,31 +1,8 @@
 const User = require('../model/User')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const multer = require('multer')
 const fs = require('fs')
-
-const fileStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'images/user')
-    },
-    filename: (req, file, cb) => {
-        cb(null, new Date().getTime() + '-' + file.originalname)
-    }
-})
-
-const fileFilter = (req, file, cb) => {
-    if (
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/jpeg'
-    ) {
-        cb(null, true)
-    } else {
-        cb(null, false)
-    }
-}
-
-var upload = multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+const upload = require('../middleware/upload')
 
 const getUser = async (req, res) => {
     const token = req.headers.authorization
@@ -88,7 +65,7 @@ const register = (req, res) => {
 }
 
 
-const maxAge = 3 * 24 * 60 * 60
+const maxAge = 30 * 24 * 60 * 60
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -128,6 +105,58 @@ const login = async (req, res) => {
     }
 }
 
+const updateUser = async (req, res) => {
+    try {
+        const token = req.headers.authorization
+        const decode = jwt.verify(token, process.env.SECRET_KEY)
+        const id = decode.id
+
+        const { name, categoryUserId } = req.body
+
+        const update = await User.update({
+            name, categoryUserId
+        }, { where: { id: id } })
+
+        res.status(200).send("Profil berhasil diupdate")
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+const updatePassword = async (req, res) => {
+    try {
+        const token = req.headers.authorization
+        const decode = jwt.verify(token, process.env.SECRET_KEY)
+        const id = decode.id
+
+        const { password, newPassword } = req.body
+
+        const getUser = await User.findOne({
+            where: { id: id }
+        }).then(user => {
+            if (user) {
+                bcrypt.compare(password, user.password, (err, result) => {
+
+                    if (result) {
+                        bcrypt.hash(newPassword, 10, async (err, hashedPass) => {
+                            const update = await User.update({
+                                password: hashedPass
+                            }, { where: { id: id } })
+
+                            res.send("Password diubah")
+                        })
+                    } else {
+                        res.send("Password Salah")
+                    }
+
+                })
+            }
+        })
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
 module.exports = {
-    login, register, getUser
+    login, register, getUser, updateUser, updatePassword
 }
