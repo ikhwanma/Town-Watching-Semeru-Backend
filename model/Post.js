@@ -11,6 +11,7 @@ const Post = db.define(
         latitude: { type: sequelize.STRING },
         longitude: { type: sequelize.STRING },
         level: { type: sequelize.INTEGER },
+        status: { type: sequelize.BOOLEAN },
         image: { type: sequelize.STRING },
     },
     {

@@ -19,11 +19,11 @@ const addPost = (req, res) => {
             const decode = jwt.verify(token, process.env.SECRET_KEY)
             const userId = decode.id
 
-            const { description, latitude, longitude, categoryId, level } = req.body
+            const { description, latitude, longitude, categoryId, level, status } = req.body
             const image = req.file.path
 
             const newPost = new Post({
-                description, latitude, longitude, level, image, categoryId: categoryId, userId: userId
+                description, latitude, longitude, level, status, image, categoryId: categoryId, userId: userId
             })
 
             await newPost.save()
@@ -39,7 +39,7 @@ const getAllPost = async (req, res) => {
     try {
         const getAllPost = await Post.findAll({
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
             ],
             include: ['category', 'user', 'like', 'comment']
         })
@@ -59,12 +59,29 @@ const getPostUser = async (req, res) => {
         const getPost = await Post.findAll({
             where: { userId: userId },
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
             ],
             include: ['category', 'user', 'like', 'comment']
         })
 
         res.json(getPost)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
+const getPostByCategory = async (req, res) => {
+    try {
+        const categoryId = req.params.id
+
+        const getPost = await Post.findAll({
+            where: { categoryId: categoryId },
+            attributes: [
+                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
+            ],
+            include: ['category', 'user', 'like', 'comment']
+        })
+
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -77,7 +94,7 @@ const getDetailPost = async (req, res) => {
         const getPost = await Post.findOne({
             where: { id: id },
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
             ],
             include: ['category', 'user', 'like', 'comment']
         })
@@ -99,7 +116,7 @@ const deletePost = async (req, res) => {
             where: { id: id }
         })
 
-        const deletePost = await Post.destroy({
+        await Post.destroy({
             where: { id: id, userId: userId }
         })
 
@@ -128,10 +145,10 @@ const updatePost = async (req, res) => {
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const user_id = decode.id
 
-        const { id, description, categoryId, level } = req.body
+        const { id, description, categoryId, level, status } = req.body
 
         const updateUser = await Post.update({
-            description: description, categoryId: categoryId, level
+            description: description, categoryId: categoryId, level: level, status: status
         }, { where: { id: id, user_id: user_id } })
 
         // res.json(updateUser)
@@ -144,5 +161,5 @@ const updatePost = async (req, res) => {
 }
 
 module.exports = {
-    addPost, getAllPost, getDetailPost, deletePost, updatePost, getPostUser
+    addPost, getAllPost, getDetailPost, deletePost, updatePost, getPostUser, getPostByCategory
 }
