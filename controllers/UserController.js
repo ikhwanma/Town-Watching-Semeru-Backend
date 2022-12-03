@@ -27,7 +27,7 @@ const register = (req, res) => {
         }
 
         try {
-            const { name, email, category_user } = req.body
+            const { name, email, categoryUserId } = req.body
             const password = hashedPass
 
             const checkUser = await User.findOne({
@@ -43,7 +43,7 @@ const register = (req, res) => {
             const iconPath = "images/user/mountain_icon.png"
 
             const newUser = new User({
-                name, email, password, image: iconPath
+                name, email, password, categoryUserId, image: iconPath
             })
 
             res.json(newUser)

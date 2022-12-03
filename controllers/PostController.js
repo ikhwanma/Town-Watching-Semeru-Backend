@@ -82,6 +82,8 @@ const getPostByCategory = async (req, res) => {
             include: ['category', 'user', 'like', 'comment']
         })
 
+        res.json(getPost)
+
     } catch (err) {
         res.status(500).send(err.message)
     }
