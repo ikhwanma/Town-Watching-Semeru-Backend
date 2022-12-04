@@ -3,7 +3,9 @@ const Category = require('../model/Category')
 
 const getCategory = async (req, res) => {
     try {
-        const getCategory = await Category.findAll({})
+        const getCategory = await Category.findAll({
+            order: [["id", "ASC"]]
+        })
 
         res.json(getCategory)
     } catch (err) {

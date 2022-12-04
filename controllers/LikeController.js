@@ -43,6 +43,7 @@ const getPostLike = async (req, res) => {
         const userId = decode.id
 
         const getPost = await Like.findAll({
+            order: [["id", "ASC"]],
             where: { userId: userId },
             attributes: ['id', 'createdAt', 'updatedAt', 'userId'],
             include: ['post']

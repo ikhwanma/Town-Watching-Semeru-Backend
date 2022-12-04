@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const { Sequelize } = require('sequelize')
 const CategoryUser = require('../model/CategoryUser')
 
 const addCategoryUser = async (req, res) => {
@@ -19,7 +20,9 @@ const addCategoryUser = async (req, res) => {
 
 const getAllCategoryUser = async (req, res) => {
     try {
-        const getAllCategoryUser = await CategoryUser.findAll({})
+        const getAllCategoryUser = await CategoryUser.findAll({
+            order: [["id", "ASC"]],
+        })
 
         res.json(getAllCategoryUser)
     } catch (err) {
@@ -27,12 +30,18 @@ const getAllCategoryUser = async (req, res) => {
     }
 }
 
-const getCategoryUserById = async (req, res) => {
+const getCategoryUser = async (req, res) => {
     try {
-        const id = req.params.id
+        const where = {}
 
-        const getCategoryUser = await CategoryUser.findOne({
-            where: { id: id }
+        const { id, category_user } = req.query
+        if (id) where.id = { [Sequelize.Op.eq]: id }
+        if (category_user) where.category_user = { [Sequelize.Op.like]: category_user }
+
+        const getCategoryUser = await CategoryUser.findAll({
+            where: {
+                ...where
+            }
         })
 
         res.json(getCategoryUser)
@@ -42,5 +51,5 @@ const getCategoryUserById = async (req, res) => {
 }
 
 module.exports = {
-    addCategoryUser, getAllCategoryUser, getCategoryUserById
+    addCategoryUser, getAllCategoryUser, getCategoryUser
 }

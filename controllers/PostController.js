@@ -38,6 +38,7 @@ const addPost = (req, res) => {
 const getAllPost = async (req, res) => {
     try {
         const getAllPost = await Post.findAll({
+            order: [["id", "ASC"]],
             attributes: [
                 'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
             ],
@@ -75,6 +76,7 @@ const getPostByCategory = async (req, res) => {
         const categoryId = req.params.id
 
         const getPost = await Post.findAll({
+            order: [["id", "ASC"]],
             where: { categoryId: categoryId },
             attributes: [
                 'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
@@ -94,6 +96,7 @@ const getDetailPost = async (req, res) => {
         const id = req.params.id
 
         const getPost = await Post.findOne({
+            order: [["id", "ASC"]],
             where: { id: id },
             attributes: [
                 'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'

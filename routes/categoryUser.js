@@ -4,7 +4,6 @@ const router = express.Router()
 const CategoryUserController = require('../controllers/CategoryUserController')
 
 router.post('/category', CategoryUserController.addCategoryUser)
-router.get('/category', CategoryUserController.getAllCategoryUser)
-router.get('/category/:id', CategoryUserController.getCategoryUserById)
+router.get('/category/', CategoryUserController.getCategoryUser)
 
 module.exports = router

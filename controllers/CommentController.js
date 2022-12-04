@@ -28,6 +28,7 @@ const getComment = async (req, res) => {
         const postId = req.params.id
 
         const getCommentPost = await Comment.findAll({
+            order: [["id", "ASC"]],
             where: { postId: postId },
             attributes: ['id', 'comment', 'createdAt', 'updatedAt', 'postId'],
             include: ['user']
