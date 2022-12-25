@@ -85,7 +85,8 @@ const login = async (req, res) => {
                         let token = jwt.sign({ id: user.id }, 'AzQ,PI)0(', { expiresIn: maxAge })
                         res.json({
                             message: 'Login Successful',
-                            token
+                            token,
+                            id: user.id
                         })
                     } else {
                         res.json({
