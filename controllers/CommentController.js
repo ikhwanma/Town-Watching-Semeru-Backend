@@ -16,7 +16,7 @@ const addComment = async (req, res) => {
 
         await newComment.save()
 
-        res.send("Komentar ditambahkan")
+        res.json({ message: "Komentar ditambahkan" })
 
     } catch (err) {
         res.status(500).send(err.message)

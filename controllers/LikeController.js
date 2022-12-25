@@ -18,7 +18,7 @@ const addLike = async (req, res) => {
                 where: { userId: userId, postId: postId }
             })
 
-            res.status(200).send("Berhasil menghapus like")
+            res.status(200).json({ message: "Berhasil menghapus like" })
         } else {
             const newLike = new Like({
                 userId, postId
@@ -26,7 +26,7 @@ const addLike = async (req, res) => {
 
             await newLike.save()
 
-            res.status(200).send("Berhasil memberikan like")
+            res.status(200).json({ message: "Berhasil memberikan like" })
         }
 
 

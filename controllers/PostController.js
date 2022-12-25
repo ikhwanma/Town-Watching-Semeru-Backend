@@ -5,6 +5,7 @@ const fs = require('fs')
 const Like = require('../model/Like')
 const Comment = require('../model/Comment')
 const upload = require('../middleware/upload.post')
+const { Sequelize } = require('sequelize')
 
 
 const addPost = (req, res) => {
@@ -37,12 +38,22 @@ const addPost = (req, res) => {
 
 const getAllPost = async (req, res) => {
     try {
+        const where = {}
+
+        const { categoryId, level, status } = req.query
+        if (categoryId) where.categoryId = { [Sequelize.Op.eq]: categoryId }
+        if (level) where.level = { [Sequelize.Op.eq]: level }
+        if (status) where.status = { [Sequelize.Op.eq]: status }
+
         const getAllPost = await Post.findAll({
             order: [["id", "ASC"]],
             attributes: [
                 'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
             ],
-            include: ['category', 'user', 'like', 'comment']
+            include: ['category', 'user', 'like', 'comment'],
+            where: {
+                ...where
+            }
         })
 
         res.json(getAllPost)
