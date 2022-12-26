@@ -181,9 +181,9 @@ const updateAva = (req, res) => {
                 image: image
             }, { where: { id: id } })
 
-            res.send("Foto profil diupdate")
+            res.json({ message: "Foto profil diubah" })
         } catch (err) {
-            res.status(500).send(err.message)
+            res.status(500).json({ message: err.message })
         }
     })
 }
