@@ -118,9 +118,9 @@ const updateUser = async (req, res) => {
             name, categoryUserId
         }, { where: { id: id } })
 
-        res.status(200).send("Profil berhasil diupdate")
+        res.status(200).json({ message: "Profil berhasil diubah" })
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).json({ message: err.message })
     }
 }
 
@@ -144,17 +144,17 @@ const updatePassword = async (req, res) => {
                                 password: hashedPass
                             }, { where: { id: id } })
 
-                            res.send("Password diubah")
+                            res.json({ message: "Password diubah" })
                         })
                     } else {
-                        res.send("Password Salah")
+                        res.json({ message: "Password salah" })
                     }
 
                 })
             }
         })
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).json({ message: err.message })
     }
 }
 
