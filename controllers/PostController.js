@@ -148,7 +148,7 @@ const deletePost = async (req, res) => {
 
         fs.unlinkSync('images/' + imagePath[2])
 
-        res.send("Data berhasil dihapus")
+        res.json({ message: "Laporan berhasil dihapus" })
 
     } catch (err) {
         res.status(500).send(err.message)
