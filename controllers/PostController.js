@@ -132,16 +132,16 @@ const deletePost = async (req, res) => {
             where: { id: id }
         })
 
-        await Post.destroy({
-            where: { id: id, userId: userId }
-        })
-
         await Like.destroy({
             where: { postId: id }
         })
 
         await Comment.destroy({
             where: { postId: id }
+        })
+
+        await Post.destroy({
+            where: { id: id, userId: userId }
         })
 
         const imagePath = post.image.split("\\")
@@ -151,7 +151,7 @@ const deletePost = async (req, res) => {
         res.json({ message: "Laporan berhasil dihapus" })
 
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).json({ message: err.message })
     }
 }
 
@@ -167,10 +167,9 @@ const updatePost = async (req, res) => {
             description: description, categoryId: categoryId, level: level, status: status
         }, { where: { id: id, user_id: user_id } })
 
-        // res.json(updateUser)
         await updateUser
 
-        res.send("Data diupdate")
+        res.json({ message: "Laporan diperbarui" })
     } catch (err) {
         res.status(500).send(err.message)
     }
