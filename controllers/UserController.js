@@ -83,21 +83,25 @@ const login = async (req, res) => {
 
                     if (result) {
                         let token = jwt.sign({ id: user.id }, 'AzQ,PI)0(', { expiresIn: maxAge })
-                        res.json({
+                        res.status(500).json({
                             message: 'Login Successful',
                             token,
                             id: user.id
                         })
                     } else {
                         res.json({
-                            message: 'Password does not matched'
+                            message: 'Password salah',
+                            token: "",
+                            id: 0
                         })
                     }
                 })
             }
             else {
                 res.json({
-                    message: 'No user found!'
+                    message: 'Email belum terdaftar',
+                    token: "",
+                    id: 0
                 })
             }
         })
