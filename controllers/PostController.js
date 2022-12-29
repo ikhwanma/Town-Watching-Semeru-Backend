@@ -165,7 +165,7 @@ const updatePost = async (req, res) => {
 
         const updateUser = await Post.update({
             description: description, categoryId: categoryId, level: level, status: status
-        }, { where: { id: id, user_id: user_id } })
+        }, { where: { id: id, userId: user_id } })
 
         await updateUser
 
