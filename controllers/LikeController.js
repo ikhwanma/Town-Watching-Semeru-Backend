@@ -47,8 +47,6 @@ const getPostLike = async (req, res) => {
             where: { userId: userId },
             attributes: ['id', 'createdAt', 'updatedAt', 'userId'],
             include: ['post']
-        }).map({
-
         })
 
         res.json(getPost)

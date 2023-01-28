@@ -39,6 +39,23 @@ const getComment = async (req, res) => {
     }
 }
 
+const deleteComment = async (req, res) => {
+    try {
+        const token = req.headers.authorization
+        const decode = jwt.verify(token, process.env.SECRET_KEY)
+        const userId = decode.id
+        const id = req.params.id
+
+        await Comment.destroy({
+            where: { id: id, userId: userId }
+        })
+
+        res.json({ message: "Komentar dihapus" })
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
 module.exports = {
-    addComment, getComment
+    addComment, getComment, deleteComment
 }

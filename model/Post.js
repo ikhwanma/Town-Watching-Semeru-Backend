@@ -8,9 +8,9 @@ const Post = db.define(
     "post",
     {
         description: { type: sequelize.STRING },
-        latitude: { type: sequelize.STRING },
-        longitude: { type: sequelize.STRING },
-        level: { type: sequelize.INTEGER },
+        latitude: { type: sequelize.DOUBLE },
+        longitude: { type: sequelize.DOUBLE },
+        level: { type: sequelize.STRING },
         status: { type: sequelize.BOOLEAN },
         image: { type: sequelize.STRING },
     },

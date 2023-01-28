@@ -54,12 +54,12 @@ const register = (req, res) => {
                 })
             })
                 .catch(error => {
-                    res.json({
-                        message: 'An error occured'
+                    res.status(500).json({
+                        message: error.message
                     })
                 })
         } catch (err) {
-            res.status(500).send(err.message)
+            res.status(500).json({ message: "An Error Occured" })
         }
     })
 }
@@ -83,7 +83,7 @@ const login = async (req, res) => {
 
                     if (result) {
                         let token = jwt.sign({ id: user.id }, 'AzQ,PI)0(', { expiresIn: maxAge })
-                        res.status(500).json({
+                        res.json({
                             message: 'Login Successful',
                             token,
                             id: user.id
@@ -106,7 +106,7 @@ const login = async (req, res) => {
             }
         })
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).json({ message: err.message })
     }
 }
 

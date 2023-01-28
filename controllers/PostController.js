@@ -46,7 +46,7 @@ const getAllPost = async (req, res) => {
         if (status) where.status = { [Sequelize.Op.eq]: status }
 
         const getAllPost = await Post.findAll({
-            order: [["id", "ASC"]],
+            order: [["updatedAt", "ASC"]],
             attributes: [
                 'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
             ],
