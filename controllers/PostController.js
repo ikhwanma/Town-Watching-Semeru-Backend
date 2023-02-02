@@ -140,13 +140,13 @@ const deletePost = async (req, res) => {
             where: { postId: id }
         })
 
+        const imagePath = post.image.split("\\")
+
+        fs.unlinkSync(imagePath[0])
+
         await Post.destroy({
             where: { id: id, userId: userId }
         })
-
-        const imagePath = post.image.split("\\")
-
-        fs.unlinkSync('images/' + imagePath[2])
 
         res.json({ message: "Laporan berhasil dihapus" })
 

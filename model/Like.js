@@ -14,19 +14,24 @@ const Like = db.define(
 )
 
 User.hasMany(Like, {
+    foreignKey: {
+        allowNull: false
+    },
     as: 'like'
 })
 Like.belongsTo(User, {
-    foreignKey: 'userId',
     as: 'user'
 }
 )
 
 Post.hasMany(Like, {
-    as: 'like'
+    foreignKey: {
+        allowNull: false
+    },
+    as: 'like',
+    onDelete: 'cascade',
 })
 Like.belongsTo(Post, {
-    foreignKey: 'postId',
     as: 'post'
 })
 

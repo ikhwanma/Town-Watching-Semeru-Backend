@@ -6,19 +6,22 @@ const CategoryUser = require('./CategoryUser')
 const User = db.define(
     "user",
     {
-        name: { type: sequelize.STRING },
-        email: { type: sequelize.STRING },
-        password: { type: sequelize.STRING },
-        image: { type: sequelize.STRING }
+        name: { type: sequelize.STRING, allowNull: false },
+        email: { type: sequelize.STRING, allowNull: false },
+        password: { type: sequelize.STRING, allowNull: false },
+        image: { type: sequelize.STRING, allowNull: false }
     },
     {
         freezeTableName: true
     }
 )
 
-CategoryUser.hasMany(User, { as: 'user' })
+CategoryUser.hasMany(User, {
+    foreignKey: {
+        allowNull: false
+    }
+})
 User.belongsTo(CategoryUser, {
-    foreignKey: "categoryUserId",
     as: "category_user"
 })
 

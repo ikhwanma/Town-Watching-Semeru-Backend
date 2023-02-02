@@ -7,27 +7,40 @@ const db = require('../utils/db')
 const Post = db.define(
     "post",
     {
-        description: { type: sequelize.STRING },
-        latitude: { type: sequelize.DOUBLE },
-        longitude: { type: sequelize.DOUBLE },
-        level: { type: sequelize.STRING },
-        status: { type: sequelize.BOOLEAN },
-        image: { type: sequelize.STRING },
+        description: {
+            type: sequelize.STRING,
+            allowNull: false
+        },
+        latitude: {
+            type: sequelize.DOUBLE, allowNull: false
+        },
+        longitude: { type: sequelize.DOUBLE, allowNull: false },
+        level: { type: sequelize.STRING, allowNull: false },
+        status: { type: sequelize.BOOLEAN, allowNull: false },
+        image: { type: sequelize.STRING, allowNull: false },
     },
     {
         freezeTableName: true
     }
 )
 
-Category.hasMany(Post, { as: 'post' })
+Category.hasMany(Post, {
+    foreignKey: {
+        allowNull: false
+    }
+}
+)
 Post.belongsTo(Category, {
-    foreignKey: "categoryId",
-    as: "category",
+    as: "category"
 })
 
-User.hasMany(Post, { as: 'post' })
+User.hasMany(Post, {
+    as: 'post',
+    foreignKey: {
+        allowNull: false
+    }
+})
 Post.belongsTo(User, {
-    foreignKey: "userId",
     as: "user",
     include: ['category_user']
 })

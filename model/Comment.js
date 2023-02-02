@@ -7,7 +7,7 @@ const Post = require('./Post')
 const Comment = db.define(
     "comment",
     {
-        comment: { type: sequelize.STRING }
+        comment: { type: sequelize.STRING, allowNull: false }
     },
     {
         freezeTableName: true
@@ -15,18 +15,24 @@ const Comment = db.define(
 )
 
 User.hasMany(Comment, {
+    foreignKey: {
+        allowNull: false
+    },
     as: 'comment'
 })
 Comment.belongsTo(User, {
-    foreignKey: 'userId',
     as: 'user'
 })
 
 Post.hasMany(Comment, {
-    as: 'comment'
+    as: 'comment',
+    onDelete: 'cascade',
+    foreignKey: {
+        allowNull: false
+    }
 })
 Comment.belongsTo(Post, {
-    foreignKey: 'postId',
+    onDelete: 'cascade',
     as: 'post'
 })
 
