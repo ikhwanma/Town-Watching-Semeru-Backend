@@ -9,7 +9,9 @@ const User = db.define(
         name: { type: sequelize.STRING, allowNull: false },
         email: { type: sequelize.STRING, allowNull: false },
         password: { type: sequelize.STRING, allowNull: false },
-        image: { type: sequelize.STRING, allowNull: false }
+        image: { type: sequelize.STRING, allowNull: false },
+        token: { type: sequelize.INTEGER },
+        verified: { type: sequelize.BOOLEAN, allowNull: false }
     },
     {
         freezeTableName: true

@@ -35,6 +35,22 @@ const addLike = async (req, res) => {
     }
 }
 
+const getLike = async (req, res) => {
+    try {
+
+        const postId = req.params.id
+
+        const getPost = await Like.findAll({
+            where: { postId: postId },
+            attributes: ['id']
+        })
+
+        res.json(getPost)
+    } catch (err) {
+        res.status(500).send(err.message)
+    }
+}
+
 const getPostLike = async (req, res) => {
     try {
 
@@ -57,5 +73,5 @@ const getPostLike = async (req, res) => {
 
 
 module.exports = {
-    addLike, getPostLike
+    addLike, getPostLike, getLike
 }

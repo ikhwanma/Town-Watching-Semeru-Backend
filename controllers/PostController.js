@@ -132,14 +132,6 @@ const deletePost = async (req, res) => {
             where: { id: id }
         })
 
-        await Like.destroy({
-            where: { postId: id }
-        })
-
-        await Comment.destroy({
-            where: { postId: id }
-        })
-
         const imagePath = post.image.split("\\")
 
         fs.unlinkSync(imagePath[0])

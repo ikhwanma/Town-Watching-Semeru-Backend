@@ -2,7 +2,20 @@ const User = require('../model/User')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
+const nodemailer = require('nodemailer')
 const upload = require('../middleware/upload.user')
+var randtoken = require('rand-token').generator({
+    chars: '0-9'
+})
+let transport = nodemailer.createTransport({
+    service: 'gmail',
+    host: "smtp.gmail.com",
+    secure: false,
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD_APP
+    }
+});
 
 const getUser = async (req, res) => {
     const token = req.headers.authorization
@@ -27,6 +40,7 @@ const register = (req, res) => {
         }
 
         try {
+            const token = randtoken.generate(4)
             const { name, email, categoryUserId } = req.body
             const password = hashedPass
 
@@ -35,7 +49,7 @@ const register = (req, res) => {
             })
 
             if (checkUser) {
-                return res.json({
+                return res.status(409).json({
                     message: "Email has already regstered"
                 })
             }
@@ -43,11 +57,22 @@ const register = (req, res) => {
             const iconPath = "images/user/mountain_icon.png"
 
             const newUser = new User({
-                name, email, password, categoryUserId, image: iconPath
+                name: name,
+                email: email,
+                password: password,
+                categoryUserId,
+                image: iconPath,
+                token: token,
+                verified: false
             })
 
-            res.json(newUser)
-
+            var htmlText = '<h1>Halo, <strong>' + name + '</strong></h1><h2>Masukkan Kode ini untuk verifikasi akun anda<br/></h2><h1>' + token
+            const mailOptions = await transport.sendMail({
+                from: process.env.EMAIL,
+                to: email,
+                subject: 'Registrasi Semeru Town Watch',
+                html: htmlText,
+            })
             await newUser.save().then(user => {
                 res.json({
                     message: 'User Registered Successfully'
@@ -64,8 +89,29 @@ const register = (req, res) => {
     })
 }
 
-
 const maxAge = 30 * 24 * 60 * 60
+
+const forgotPassword = async (req, res) => {
+    try {
+        const email = req.body.email
+        var token = randtoken.generate(4)
+        var htmlText = '<h1>Halo, <strong>' + email + '</strong></h1><h2>Masukkan Kode ini untuk reset password akun anda<br/></h2><h1>' + token
+        const mailOptions = await transport.sendMail({
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Lupa Password Semeru Town Watch',
+            html: htmlText,
+        })
+        res.json({
+            message: 'Successfully send email'
+        })
+    } catch (err) {
+        res.json({
+            message: err
+        })
+    }
+}
+
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -193,5 +239,5 @@ const updateAva = (req, res) => {
 }
 
 module.exports = {
-    login, register, getUser, updateUser, updatePassword, updateAva
+    login, register, getUser, updateUser, updatePassword, updateAva, forgotPassword
 }
