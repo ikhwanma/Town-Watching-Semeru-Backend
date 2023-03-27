@@ -2,10 +2,9 @@ const jwt = require('jsonwebtoken')
 const Post = require('../model/Post')
 
 const fs = require('fs')
-const Like = require('../model/Like')
-const Comment = require('../model/Comment')
 const upload = require('../middleware/upload.post')
 const { Sequelize } = require('sequelize')
+const User = require('../model/User')
 
 
 const addPost = (req, res) => {
@@ -13,18 +12,16 @@ const addPost = (req, res) => {
         if (err) {
             return res.send(err.message)
         }
-
         try {
-
             const token = req.headers.authorization
             const decode = jwt.verify(token, process.env.SECRET_KEY)
             const userId = decode.id
 
-            const { description, latitude, longitude, categoryId, level, status } = req.body
+            const { description, latitude, longitude, address, categoryId, level, status, detailCategory } = req.body
             const image = req.file.path
 
             const newPost = new Post({
-                description, latitude, longitude, level, status, image, categoryId: categoryId, userId: userId
+                description, latitude, longitude, address, level, status, detailCategory, image, categoryId: categoryId, userId: userId, isDeleted: false
             })
 
             await newPost.save()
@@ -45,12 +42,16 @@ const getAllPost = async (req, res) => {
         if (level) where.level = { [Sequelize.Op.eq]: level }
         if (status) where.status = { [Sequelize.Op.eq]: status }
 
+        where.isDeleted = { [Sequelize.Op.eq]: false }
+
         const getAllPost = await Post.findAll({
             order: [["updatedAt", "ASC"]],
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'address', 'level', 'status', 'detailCategory', 'image', 'createdAt', 'updatedAt'
             ],
-            include: ['category', 'user', 'like', 'comment'],
+            include: ['category', 'like', 'comment', {
+                model: User, as: 'user', include: ['category_user']
+            }],
             where: {
                 ...where
             }
@@ -69,11 +70,14 @@ const getPostUser = async (req, res) => {
         const userId = decode.id
 
         const getPost = await Post.findAll({
-            where: { userId: userId },
+            order: [["updatedAt", "ASC"]],
+            where: { userId: userId, isDeleted: false },
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'address', 'level', 'status', 'detailCategory', 'image', 'createdAt', 'updatedAt'
             ],
-            include: ['category', 'user', 'like', 'comment']
+            include: ['category', 'like', 'comment', {
+                model: User, as: 'user', include: ['category_user']
+            }]
         })
 
         res.json(getPost)
@@ -87,12 +91,14 @@ const getPostByCategory = async (req, res) => {
         const categoryId = req.params.id
 
         const getPost = await Post.findAll({
-            order: [["id", "ASC"]],
-            where: { categoryId: categoryId },
+            order: [["updatedAt", "ASC"]],
+            where: { categoryId: categoryId, isDeleted: false },
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'address', 'level', 'status', 'detailCategory', 'image', 'createdAt', 'updatedAt'
             ],
-            include: ['category', 'user', 'like', 'comment']
+            include: ['category', 'like', 'comment', {
+                model: User, as: 'user', include: ['category_user']
+            }]
         })
 
         res.json(getPost)
@@ -107,12 +113,14 @@ const getDetailPost = async (req, res) => {
         const id = req.params.id
 
         const getPost = await Post.findOne({
-            order: [["id", "ASC"]],
-            where: { id: id },
+            order: [["updatedAt", "ASC"]],
+            where: { id: id, isDeleted: false },
             attributes: [
-                'id', 'description', 'latitude', 'longitude', 'level', 'status', 'image', 'createdAt', 'updatedAt'
+                'id', 'description', 'latitude', 'longitude', 'address', 'level', 'status', 'detailCategory', 'image', 'createdAt', 'updatedAt'
             ],
-            include: ['category', 'user', 'like', 'comment']
+            include: ['category', 'like', 'comment', {
+                model: User, as: 'user', include: ['category_user']
+            }],
         })
 
         res.json(getPost)
@@ -128,17 +136,9 @@ const deletePost = async (req, res) => {
         const userId = decode.id
         const id = req.params.id
 
-        const post = await Post.findOne({
-            where: { id: id }
-        })
-
-        const imagePath = post.image.split("\\")
-
-        fs.unlinkSync(imagePath[0])
-
-        await Post.destroy({
-            where: { id: id, userId: userId }
-        })
+        await Post.update({
+            isDeleted: true
+        }, { where: { id: id, userId: userId } })
 
         res.json({ message: "Laporan berhasil dihapus" })
 
@@ -153,10 +153,10 @@ const updatePost = async (req, res) => {
         const decode = jwt.verify(token, process.env.SECRET_KEY)
         const user_id = decode.id
 
-        const { id, description, categoryId, level, status } = req.body
+        const { id, description, categoryId, level, status, detailCategory } = req.body
 
         const updateUser = await Post.update({
-            description: description, categoryId: categoryId, level: level, status: status
+            description: description, categoryId: categoryId, level: level, status: status, detailCategory: detailCategory
         }, { where: { id: id, userId: user_id } })
 
         await updateUser

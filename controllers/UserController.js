@@ -25,7 +25,7 @@ const getUser = async (req, res) => {
     const getUserData = await User.findOne({
         where: { id: user_id },
         attributes: [
-            'id', 'name', 'email', 'password', 'image', 'createdAt', 'updatedAt'
+            'id', 'name', 'email', 'password', 'image', 'verified', 'createdAt', 'updatedAt'
         ],
         include: ['category_user']
     })
@@ -60,17 +60,17 @@ const register = (req, res) => {
                 name: name,
                 email: email,
                 password: password,
-                categoryUserId,
+                categoryUserId: categoryUserId,
                 image: iconPath,
                 token: token,
                 verified: false
             })
 
-            var htmlText = '<h1>Halo, <strong>' + name + '</strong></h1><h2>Masukkan Kode ini untuk verifikasi akun anda<br/></h2><h1>' + token
-            const mailOptions = await transport.sendMail({
+            var htmlText = '<h1>Halo, <strong>' + newUser.name + '</strong></h1><h2>Masukkan Kode ini untuk verifikasi akun anda<br/></h2><h1>' + token
+            transport.sendMail({
                 from: process.env.EMAIL,
                 to: email,
-                subject: 'Registrasi Semeru Town Watch',
+                subject: 'Kode Verifikasi',
                 html: htmlText,
             })
             await newUser.save().then(user => {
@@ -79,44 +79,81 @@ const register = (req, res) => {
                 })
             })
                 .catch(error => {
-                    res.status(500).json({
+                    res.status(501).json({
                         message: error.message
                     })
                 })
         } catch (err) {
-            res.status(500).json({ message: "An Error Occured" })
+            res.status(500).json({ message: message })
         }
     })
 }
 
-const maxAge = 30 * 24 * 60 * 60
-
-const forgotPassword = async (req, res) => {
+const verifyCode = async (req, res) => {
     try {
-        const email = req.body.email
-        var token = randtoken.generate(4)
-        var htmlText = '<h1>Halo, <strong>' + email + '</strong></h1><h2>Masukkan Kode ini untuk reset password akun anda<br/></h2><h1>' + token
-        const mailOptions = await transport.sendMail({
-            from: process.env.EMAIL,
-            to: email,
-            subject: 'Lupa Password Semeru Town Watch',
-            html: htmlText,
-        })
-        res.json({
-            message: 'Successfully send email'
+        const { email, token } = req.body
+
+        await User.findOne({
+            where: { email: email }
+        }).then(user => {
+            if (token == user.token) {
+                user.update({
+                    token: null,
+                    verified: true
+                })
+                res.status(200).json({ message: "Sukses mendaftarkan akun" })
+            } else {
+                res.status(400).json({ message: "Token Salah" })
+            }
         })
     } catch (err) {
-        res.json({
-            message: err
-        })
+        res.status(500).json({ message: err })
     }
 }
+
+const resendCode = async (req, res) => {
+    try {
+        const { email } = req.body
+        const token = randtoken.generate(4)
+
+        await User.findOne({
+            where: { email: email }
+        }).then(user => {
+            if (!user) {
+                res.status(401).json({ message: "Pengguna tidak ditemukan" })
+                return
+            } else {
+                var htmlText = '<h1>Halo, <strong>' + user.name + '</strong></h1><h2>Masukkan Kode ini untuk verifikasi akun anda<br/></h2><h1>' + token
+                transport.sendMail({
+                    from: process.env.EMAIL,
+                    to: email,
+                    subject: 'Kode Verifikasi',
+                    html: htmlText,
+                })
+
+                user.update({
+                    token: token,
+                })
+
+                res.status(200).json({ message: "Email terkirim, cek email anda" })
+            }
+        })
+
+
+
+
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+const maxAge = 30 * 24 * 60 * 60
 
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
 
-        const getUser = await User.findOne({
+        await User.findOne({
             where: { email: email }
         }).then(user => {
             if (user) {
@@ -128,12 +165,20 @@ const login = async (req, res) => {
                     }
 
                     if (result) {
-                        let token = jwt.sign({ id: user.id }, 'AzQ,PI)0(', { expiresIn: maxAge })
-                        res.json({
-                            message: 'Login Successful',
-                            token,
-                            id: user.id
-                        })
+                        if (user.verified) {
+                            let token = jwt.sign({ id: user.id }, 'AzQ,PI)0(', { expiresIn: maxAge })
+                            res.json({
+                                message: 'Login successful',
+                                token,
+                                id: user.id
+                            })
+                        } else {
+                            res.json({
+                                message: 'Verifikasi user terlebih dahulu',
+                                token: "",
+                                id: 0
+                            })
+                        }
                     } else {
                         res.json({
                             message: 'Password salah',
@@ -164,7 +209,7 @@ const updateUser = async (req, res) => {
 
         const { name, categoryUserId } = req.body
 
-        const update = await User.update({
+        await User.update({
             name, categoryUserId
         }, { where: { id: id } })
 
@@ -182,7 +227,7 @@ const updatePassword = async (req, res) => {
 
         const { password, newPassword } = req.body
 
-        const getUser = await User.findOne({
+        await User.findOne({
             where: { id: id }
         }).then(user => {
             if (user) {
@@ -190,7 +235,7 @@ const updatePassword = async (req, res) => {
 
                     if (result) {
                         bcrypt.hash(newPassword, 10, async (err, hashedPass) => {
-                            const update = await User.update({
+                            user.update({
                                 password: hashedPass
                             }, { where: { id: id } })
 
@@ -202,6 +247,26 @@ const updatePassword = async (req, res) => {
 
                 })
             }
+        })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+const resetPassword = async (req, res) => {
+    try {
+        const { email, newPassword } = req.body
+
+        await User.findOne({
+            where: { email: email }
+        }).then(user => {
+            bcrypt.hash(newPassword, 10, async (err, hashedPass) => {
+                await user.update({
+                    password: hashedPass
+                })
+
+                res.json({ message: "Password diubah" })
+            })
         })
     } catch (err) {
         res.status(500).json({ message: err.message })
@@ -239,5 +304,5 @@ const updateAva = (req, res) => {
 }
 
 module.exports = {
-    login, register, getUser, updateUser, updatePassword, updateAva, forgotPassword
+    login, register, getUser, updateUser, updatePassword, updateAva, verifyCode, resendCode, resetPassword
 }

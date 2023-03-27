@@ -1,7 +1,6 @@
 const sequelize = require('sequelize')
 const User = require('./User')
 const Category = require('./Category')
-const CategoryUser = require('./CategoryUser')
 const db = require('../utils/db')
 
 const Post = db.define(
@@ -15,9 +14,12 @@ const Post = db.define(
             type: sequelize.DOUBLE, allowNull: false
         },
         longitude: { type: sequelize.DOUBLE, allowNull: false },
+        address: { type: sequelize.STRING, allowNull: false },
         level: { type: sequelize.STRING, allowNull: false },
         status: { type: sequelize.BOOLEAN, allowNull: false },
+        detailCategory: { type: sequelize.STRING, allowNull: true },
         image: { type: sequelize.STRING, allowNull: false },
+        isDeleted: { type: sequelize.BOOLEAN, allowNull: false }
     },
     {
         freezeTableName: true

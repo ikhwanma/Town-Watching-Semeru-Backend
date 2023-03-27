@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 
 const Comment = require('../model/Comment')
+const User = require('../model/User')
 
 const addComment = async (req, res) => {
     try {
@@ -31,7 +32,7 @@ const getComment = async (req, res) => {
             order: [["id", "ASC"]],
             where: { postId: postId },
             attributes: ['id', 'comment', 'createdAt', 'updatedAt', 'postId'],
-            include: ['user']
+            include: [{ model: User, as: 'user', include: ['category_user'] }]
         })
         res.json(getCommentPost)
     } catch (err) {
